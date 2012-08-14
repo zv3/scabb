@@ -14,9 +14,12 @@ object BbParser extends BbParser {
   }
 
   case class SimpleTag(name: String, htmlName: Option[String], contents: List[BbTag]) extends BbTag {
-    override def toHtml =
+    override def toHtml = {
       Elem(null, htmlName.getOrElse(name), Null, xml.TopScope, contents.flatMap(_.toHtml): _*)
+    }
   }
+
+  case class AttributedTag(name: String, htmlName: Option[String], contents: List[BbTag])
 
   case class RawText(contents: String) extends BbTag {
     override def toHtml = Text(contents)
@@ -26,24 +29,33 @@ object BbParser extends BbParser {
 
   class BbParsers extends RegexParsers with ImplicitConversions {
 
+    lazy val attrChars: Parser[String] = "[^]]+".r
+    lazy val tagChars: Parser[String]  = "[a-z]+".r
+
     def parseString(input: String): BbTag =
       parseAll(bbCode, input).getOrElse(RawText(input))
 
-    def openTag(name: String) = "[" ~> name <~ "]"
-    def closedTag(name: String) = "[/" ~> name <~ "]"
-    def simpleTag(name: String, htmlName: Option[String]): Parser[BbTag] =
-      openTag(name) ~> bbCode <~ closedTag(name) ^^
-        { case innerCode => SimpleTag(name, htmlName, innerCode :: Nil) }
+    lazy val openedTag: Parser[BbNode] = '[' ~> (tagChars ~ opt('=' ~> attrChars)) <~ ']' ^^
+    { case tagName ~ maybeVal => OpenTag(tagName, maybeVal) }
 
-    lazy val bbCode: Parser[BbTag] = italic | bold | underline | striked | raw
+    lazy val closedTag: Parser[BbNode] = '[' ~> '/' ~> tagChars <~ ']' ^^ CloseTag
+
+    def startTag(name: String) = '[' ~> name <~ ']'
+    def closeTag(name: String) = '[' ~> '/' ~> name <~ ']'
+
+    def simpleTag(name: String, htmlName: Option[String]): Parser[BbTag] =
+      startTag(name) ~> rep1(bbCode) <~ closeTag(name) ^^
+        { case innerCode => SimpleTag(name, htmlName, innerCode) }
+
+    lazy val bbCode: Parser[BbTag] = italic | bold | underline | striked | quote | raw
 
     lazy val italic = simpleTag("i", None)
     lazy val bold = simpleTag("b", None)
     lazy val underline = simpleTag("u", None)
     lazy val striked = simpleTag("s", Some("del"))
-    lazy val raw = rep(not("[/") ~> justChar) ^^
+    lazy val quote = simpleTag("q", Some("blockquote"))
+    lazy val raw = rep1(justChar) ^^
       { case chars => RawText(chars.mkString("")) }
-    lazy val justChar: Parser[Char] = elem("", c => true)
-
+    lazy val justChar: Parser[Char] = elem("", c => c != '['  && !Character.isISOControl(c) )
   }
 }

@@ -27,6 +27,14 @@ class BbSpec extends Specification {
     "deal with different text decorations interchanged" in {
       toHtml("[b][i][u][s]overdecorated[/s][/u][/i][/b]") must ==/(
           <b><i><u><del>overdecorated</del></u></i></b>)
+      toHtml("[b]all bold [i]italic[/i] and [u]underlined[/u][/b]") must ==/(
+          <b>all bold <i>italic</i> and <u>underlined</u></b>)
+    }
+
+    "deal with quotes" in {
+      toHtml("[q]Your phrase[/q]") must ==/(<blockquote>Your phrase</blockquote>)
+      toHtml("[q][b]bold[/b] and [i]italic[/i][/q]") must ==/(
+          <blockquote><b>bold</b> and <i>italic</i></blockquote>)
     }
 
     "deal with code blocks" in {
