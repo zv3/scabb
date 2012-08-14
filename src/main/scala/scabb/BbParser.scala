@@ -15,7 +15,7 @@ object BbParser extends BbParser {
 
   case class SimpleTag(name: String, htmlName: Option[String], contents: List[BbTag]) extends BbTag {
     override def toHtml =
-      Elem(null, htmlName.getOrElse(name), null, xml.TopScope, contents.flatMap(_.toHtml): _*)
+      Elem(null, htmlName.getOrElse(name), Null, xml.TopScope, contents.flatMap(_.toHtml): _*)
   }
 
   case class RawText(contents: String) extends BbTag {
