@@ -37,6 +37,14 @@ class BbSpec extends Specification {
           <b>some <i>italic</i> and <del>deleted</del> text</b>)
     }
 
+    "deal with colored blocks" in {
+      toHtml("[color=red]red text[/color]") must ==/(<span style="color: red;">red text</span>)
+    }
+
+    "deal with size changes" in {
+      toHtml("[size=20]big[/size]") must ==/(<span style="font-size: 20px;">big</span>)
+    }
+
     "deal with code blocks" in {
       toHtml("[code]val x = 5[/code]") must ==/(<code>val x = 5</code>)
       toHtml("[code=haskell]main = getLine >> putStrLn[/code]") must ==/(

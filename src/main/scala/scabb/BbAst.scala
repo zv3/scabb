@@ -11,20 +11,34 @@ abstract class BbAst {
 
 case class SimpleTag(name: String, htmlName: Option[String], contents: List[BbAst]) extends BbAst {
   override val toHtml =
-    Elem(null, htmlName.getOrElse(name), Null, xml.TopScope, contents.flatMap(_.toHtml): _*)
+    Elem(null, htmlName.getOrElse(name), Null, TopScope, contents.flatMap(_.toHtml) : _*)
 }
 
 case class CodeTag(value: Option[String], contents: RawText) extends BbAst {
   override val toHtml = {
     val classVal = value.map(mkAttr("class", _)).getOrElse(Null)
-    Elem(null, "code", classVal, xml.TopScope, contents.toHtml)
+    Elem(null, "code", classVal, TopScope, contents.toHtml)
+  }
+}
+
+case class ColorTag(value: String, contents: List[BbAst]) extends BbAst {
+  override val toHtml = {
+    val style = mkAttr("style", "color: " + value + ";")
+    Elem(null, "span", style, TopScope, contents.flatMap(_.toHtml) : _*)
+  }
+}
+
+case class SizeTag(value: String, contents: List[BbAst]) extends BbAst {
+  override val toHtml = {
+    val style = mkAttr("style", "font-size: " + value + "px;")
+    Elem(null, "span", style, TopScope, contents.flatMap(_.toHtml) : _*)
   }
 }
 
 case class LinkTag(value: Option[String], inner: FormattedText) extends BbAst {
   override val toHtml = {
     val href = mkAttr("href", value.getOrElse(inner.contents))
-    Elem(null, "a", href, xml.TopScope, inner.toHtml: _*)
+    Elem(null, "a", href, TopScope, inner.toHtml : _*)
   }
 }
 
