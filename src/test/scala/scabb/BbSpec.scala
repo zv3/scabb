@@ -58,9 +58,27 @@ class BbSpec extends Specification {
           <a href="http://google.com">Google</a>)
     }
 
+    "not pass raw html" in {
+      val contents = "<script>alert('xss');</script>"
+      toHtml(contents) must ==/(Text(contents))
+    }
+
+    "not pass javascript links" in {
+      val link = "javascript://alerts('xss')"
+      toHtml("[url]" + link + "[/url]") must ==/(Text("[url]") ++ Text(link) ++ Text("[/url]"))
+      toHtml("[url=" + link + "]xss[/url]") must ==/(
+          Text("[url=" + link + "]") ++ Text("xss") ++ Text("[/url]"))
+    }
+
+    "not pass invalid text sizes" in {
+      toHtml("[size=none]text[/size]") must ==/(
+          Text("[size=none]") ++ Text("text") ++ Text("[/size]"))
+      toHtml("[size=-3]text[/size]") must ==/(
+          Text("[size=-3]") ++ Text("text") ++ Text("[/size]"))
+    }
+
     "work greacefully with unclosed tags" in {
       toHtml("[b]closed [/b] or not [i]") must ==/(<b>closed </b> ++ Text(" or not [i]"))
     }
-
   }
 }

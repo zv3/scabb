@@ -11,7 +11,7 @@ abstract class BbAst {
 
 case class SimpleTag(name: String, htmlName: Option[String], contents: List[BbAst]) extends BbAst {
   override val toHtml =
-    Elem(null, htmlName.getOrElse(name), Null, TopScope, contents.flatMap(_.toHtml) : _*)
+    Elem(null, htmlName.getOrElse(name), Null, TopScope, contents.flatMap(_.toHtml): _*)
 }
 
 case class CodeTag(value: Option[String], contents: RawText) extends BbAst {
@@ -24,21 +24,31 @@ case class CodeTag(value: Option[String], contents: RawText) extends BbAst {
 case class ColorTag(value: String, contents: List[BbAst]) extends BbAst {
   override val toHtml = {
     val style = mkAttr("style", "color: " + value + ";")
-    Elem(null, "span", style, TopScope, contents.flatMap(_.toHtml) : _*)
+    Elem(null, "span", style, TopScope, contents.flatMap(_.toHtml): _*)
   }
 }
 
 case class SizeTag(value: String, contents: List[BbAst]) extends BbAst {
   override val toHtml = {
-    val style = mkAttr("style", "font-size: " + value + "px;")
-    Elem(null, "span", style, TopScope, contents.flatMap(_.toHtml) : _*)
+    val size = try { value.toLong } catch { case _ => -1L }
+    if (size < 5 || size > 30) {
+      Text("[size=" + value + "]") ++ contents.flatMap(_.toHtml) ++ Text("[/size]")
+    } else {
+      val style = mkAttr("style", "font-size: " + value + "px;")
+      Elem(null, "span", style, TopScope, contents.flatMap(_.toHtml): _*)
+    }
   }
 }
 
 case class LinkTag(value: Option[String], inner: FormattedText) extends BbAst {
   override val toHtml = {
-    val href = mkAttr("href", value.getOrElse(inner.contents))
-    Elem(null, "a", href, TopScope, inner.toHtml : _*)
+    val href = value.getOrElse(inner.contents)
+    if (href.toLowerCase startsWith "javascript://") {
+      Text("[url" + value.map("=" + _).getOrElse("") + "]") ++ inner.toHtml ++ Text("[/url]")
+    } else {
+      val hrefAttr = mkAttr("href", href)
+      Elem(null, "a", hrefAttr, TopScope, inner.toHtml: _*)
+    }
   }
 }
 
