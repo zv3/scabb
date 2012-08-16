@@ -79,6 +79,8 @@ class BbSpec extends Specification {
 
     "work greacefully with unclosed tags" in {
       toHtml("[b]closed [/b] or not [i]") must ==/(<b>closed </b> ++ Text(" or not [i]"))
+      toHtml("[b]x = a[5][/b]") must ==/(<b>x = a[5]</b>)
+      toHtml("[i]I like [ bracket[/i]") must ==/(<i>I like [ bracket</i>)
     }
   }
 }
