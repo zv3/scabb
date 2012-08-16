@@ -7,6 +7,8 @@ abstract class BbAst {
 
   private[scabb] def mkAttr(key: String, value: String) =
     Attribute(key, new Atom(value), Null)
+  private[scabb] def mkAttr(key: String, value: String, other: MetaData) =
+    Attribute(key, new Atom(value), other)
 }
 
 case class SimpleTag(name: String, htmlName: Option[String], contents: List[BbAst]) extends BbAst {
@@ -17,7 +19,8 @@ case class SimpleTag(name: String, htmlName: Option[String], contents: List[BbAs
 case class CodeTag(value: Option[String], contents: RawText) extends BbAst {
   override val toHtml = {
     val classVal = value.map(mkAttr("class", _)).getOrElse(Null)
-    Elem(null, "code", classVal, TopScope, contents.toHtml)
+    val style = mkAttr("style", "white-space: pre;", classVal)
+    Elem(null, "code", style, TopScope, contents.toHtml)
   }
 }
 

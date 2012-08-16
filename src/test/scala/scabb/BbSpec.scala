@@ -46,9 +46,10 @@ class BbSpec extends Specification {
     }
 
     "deal with code blocks" in {
-      toHtml("[code]val x = 5[/code]") must ==/(<code>val x = 5</code>)
+      toHtml("[code]val x = 5[/code]") must ==/(
+          <code style="white-space: pre;">val x = 5</code>)
       toHtml("[code=haskell]main = getLine >> putStrLn[/code]") must ==/(
-            <code class="haskell">main = getLine >> putStrLn</code>)
+            <code class="haskell" style="white-space: pre;">main = getLine >> putStrLn</code>)
     }
 
     "deal with links" in {
