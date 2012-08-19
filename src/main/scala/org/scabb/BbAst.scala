@@ -82,7 +82,7 @@ case class FormattedText(contents: String) extends BbAst {
     def newLineToLineBreak(offset: Int): NodeSeq = {
       val newLineIndex = contents.indexOf('\n', offset)
       if (newLineIndex > 0) {
-        appendNode(Text(contents.substring(offset, newLineIndex - offset)))
+        appendNode(Text(contents.substring(offset, newLineIndex)))
         newLineToLineBreak(newLineIndex + 1)
       } else {
         appendNode(Text(contents.substring(offset)))
