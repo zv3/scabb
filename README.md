@@ -20,3 +20,8 @@ Supported tags:
     [color=red]text[/color] => <span style="color: red;">text</span>
     [size=15]text[/size]    => <span style="font-size: 15px;">text</span>
 
+LICENSE
+-------
+
+The software is distributed under Apache 2.0 Software License.
+
