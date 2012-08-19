@@ -59,6 +59,10 @@ class BbSpec extends Specification {
           <a href="http://google.com">Google</a>)
     }
 
+    "deal with quotes" in {
+      toHtml("[q]a quote[/q]") must ==/(<blockquote>a quote</blockquote>)
+    }
+
     "not pass raw html" in {
       val contents = "<script>alert('xss');</script>"
       toHtml(contents) must ==/(Text(contents))
@@ -79,9 +83,8 @@ class BbSpec extends Specification {
     }
 
     "work greacefully with unclosed tags" in {
-      toHtml("[b]closed [/b] or not [i]") must ==/(<b>closed </b> ++ Text(" or not [i]"))
-      toHtml("[b]x = a[5][/b]") must ==/(<b>x = a[5]</b>)
-      toHtml("[i]I like [ bracket[/i]") must ==/(<i>I like [ bracket</i>)
+      toHtml("[b]closed [/b] or not [i]") must ==/(<b>closed </b> ++ Text(" or not ") ++ Text("[i]"))
+      toHtml("[i] not [b]closed [/b]") must ==/(Text("[i]") ++ Text(" not ") ++ <b>closed </b>)
     }
   }
 }
