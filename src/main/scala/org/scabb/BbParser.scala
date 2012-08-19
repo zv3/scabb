@@ -28,9 +28,6 @@ object BbParser extends BbParser {
     tokens.map(toAst).flatMap(_.toHtml)
   }
 
-  private[scabb] def mkAttr(key: String, value: String, other: MetaData) =
-    Attribute(key, new Atom(value), other)
-
   def simpleTags = Set("i", "b", "u")
 
   private def toAst(node: BbNode): BbAst = node match {
@@ -41,7 +38,7 @@ object BbParser extends BbParser {
     case TagNode("s", None, children) => SimpleTag("s", Some("del"), children.map(toAst))
     case TagNode("q", None, children) => SimpleTag("q", Some("blockquote"), children.map(toAst))
     case TagNode("size", Some(attr), children) => SizeTag(attr, children.map(toAst))
-    case TagNode("color", Some(attr), children) => ColorTag(attr, children.map(toAst))
+    case TagNode("color", attr, children) => ColorTag(attr, children.map(toAst))
     case _ => FormattedText(node.toString)
   }
 }

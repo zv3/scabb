@@ -34,15 +34,23 @@ case class SimpleTag(name: String, htmlName: Option[String], contents: List[BbAs
 case class CodeTag(value: Option[String], contents: RawText) extends BbAst {
   override val toHtml = {
     val classVal = value.map(mkAttr("class", _)).getOrElse(Null)
-    val style = mkAttr("style", "white-space: pre;", classVal)
-    Elem(null, "code", style, TopScope, contents.toHtml)
+    val code = Elem(null, "code", classVal, TopScope, contents.toHtml)
+    Elem(null, "pre", Null, TopScope, code: _*)
   }
 }
 
-case class ColorTag(value: String, contents: List[BbAst]) extends BbAst {
+case class ColorTag(value: Option[String], contents: List[BbAst]) extends BbAst {
+  val ColorRegex = """^([a-z]+|#[0-9a-f]{3}|#[0-9a-f]{6})$""".r
+
   override val toHtml = {
-    val style = mkAttr("style", "color: " + value + ";")
-    Elem(null, "span", style, TopScope, contents.flatMap(_.toHtml): _*)
+    value match {
+      case Some(ColorRegex(color)) => {
+        val style = mkAttr("style", "color: " + color + ";")
+        Elem(null, "span", style, TopScope, contents.flatMap(_.toHtml): _*)
+      }
+      case _ => Text("[color" + value.map("=" + _).getOrElse("") + "]") ++
+        contents.flatMap(_.toHtml) ++ Text("[/color]")
+    }
   }
 }
 

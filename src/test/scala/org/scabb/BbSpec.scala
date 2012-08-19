@@ -54,6 +54,8 @@ class BbSpec extends Specification {
 
     "deal with colored blocks" in {
       toHtml("[color=red]red text[/color]") must ==/(<span style="color: red;">red text</span>)
+      toHtml("[color=#eee]grey[/color]") must ==/(<span style="color: #eee;">grey</span>)
+      toHtml("[color=#0000ff]blue[/color]") must ==/(<span style="color: #0000ff;">blue</span>)
     }
 
     "deal with size changes" in {
@@ -62,9 +64,9 @@ class BbSpec extends Specification {
 
     "deal with code blocks" in {
       toHtml("[code]val x = 5[/code]") must ==/(
-          <code style="white-space: pre;">val x = 5</code>)
+          <pre><code>val x = 5</code></pre>)
       toHtml("[code=haskell]main = getLine >> putStrLn[/code]") must ==/(
-            <code class="haskell" style="white-space: pre;">main = getLine >> putStrLn</code>)
+            <pre><code class="haskell">main = getLine >> putStrLn</code></pre>)
     }
 
     "deal with links" in {
@@ -95,6 +97,13 @@ class BbSpec extends Specification {
           Text("[size=none]") ++ Text("text") ++ Text("[/size]"))
       toHtml("[size=-3]text[/size]") must ==/(
           Text("[size=-3]") ++ Text("text") ++ Text("[/size]"))
+    }
+
+    "not pass with invalid colors" in {
+      toHtml("[color]none[/color]") must ==/(Text("[color]") ++ Text("none") ++ Text("[/color]"))
+      toHtml("[color=#4444]four[/color]") must ==/(Text("[color=#4444]") ++ Text("four") ++ Text("[/color]"))
+      toHtml("[color=#hhh]h[/color]") must ==/(Text("[color=#hhh]") ++ Text("h") ++ Text("[/color]"))
+      toHtml("[color][i]inner[/i][/color]") must ==/(Text("[color]") ++ <i>inner</i> ++ Text("[/color]"))
     }
 
     "work greacefully with unclosed tags" in {
