@@ -98,6 +98,13 @@ import BbParser._
           Text("[url=" + link + "]") ++ Text("xss") ++ Text("[/url]"))
     }
 
+    "escape urls in links" in {
+      toHtml("[url=http://test?x=0&y=1&z=2]test[/url]") must ==/(
+          <a href="http://test?x=0&amp;y=1&amp;z=2">test</a>)
+      toHtml("[url=http://test?x=0&y=1][b]link[/b][/url]") must ==/(
+          <a href="http://test?x=0&amp;y=1"><b>link</b></a>)
+    }
+
     "not pass invalid text sizes" in {
       toHtml("[size=none]text[/size]") must ==/(
           Text("[size=none]") ++ Text("text") ++ Text("[/size]"))

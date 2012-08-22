@@ -40,14 +40,14 @@ class ExtendableParserSpec extends Specification {
 
       import BbParserWithMoreCodeBlocks._
       toHtml("[php]$x = 5;[/php]") must ==/(
-          <code class="php" style="white-space: pre;">$x = 5;</code>)
+        <code class="php" style="white-space: pre;">$x = 5;</code>)
       toHtml("[java]int x = 5;[/java]") must ==/(
-          <code class="java" style="white-space: pre;">int x = 5;</code>)
+        <code class="java" style="white-space: pre;">int x = 5;</code>)
     }
 
     "be extensible through trait composition" in {
       trait Headers extends ExtendableBbParser {
-        override def astExtensions: Extension = ({
+        override def astExtensions = ({
           case TagNode(h, None, contents) if Set("h1", "h2", "h3") contains h =>
             SimpleTag(h, None, contents.map(toAst _))
         }: Extension) orElse super.astExtensions
@@ -61,12 +61,12 @@ class ExtendableParserSpec extends Specification {
       }
 
       object MyBbParser extends ExtendableBbParser with Headers with SupAndSub
-import MyBbParser._
+      import MyBbParser._
 
       toHtml("[h1]E = mc[sup]2[/sup][/h1]") must ==/(
-          <h1>E = mc<sup>2</sup></h1>)
+        <h1>E = mc<sup>2</sup></h1>)
       toHtml("[h3][b]let [/b]x[sub]i[/sub] = 5[/h3]") must ==/(
-          <h3><b>let </b>x<sub>i</sub> = 5</h3>)
+        <h3><b>let </b>x<sub>i</sub> = 5</h3>)
     }
   }
 
