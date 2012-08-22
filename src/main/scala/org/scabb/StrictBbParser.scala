@@ -56,7 +56,7 @@ object StrictBbParser extends BbParser {
     lazy val code = (startAttributedTag("code") ~ raw) <~ closeTag("code") ^^
       { case name ~ maybeAttr ~ rawCode => CodeTag(maybeAttr, rawCode) }
     lazy val url = (startAttributedTag("url") ~ formatted) <~ closeTag("url") ^^
-      { case name ~ maybeAttr ~ contents => LinkTag(maybeAttr, contents) }
+      { case name ~ maybeAttr ~ contents => LinkTag(maybeAttr, contents :: Nil) }
     lazy val color = (startAttributedTag_!("color") ~ rep1(bbCode)) <~ closeTag("color") ^^
       { case name ~ attr ~ inner => ColorTag(Some(attr), inner) }
     lazy val size = (startAttributedTag_!("size") ~ rep1(bbCode) <~ closeTag("size")) ^^

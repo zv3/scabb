@@ -39,7 +39,7 @@ trait ExtendableBbParser extends BbParser {
     node match {
       case TextNode(txt) => FormattedText(txt)
       case TagNode("code", attr, children) => CodeTag(attr, RawText(children.mkString("")))
-      case TagNode("url", attr, children) => LinkTag(attr, FormattedText(children.mkString("")))
+      case TagNode("url", attr, children) => LinkTag(attr, children.map(toAst))
       case TagNode(t, None, children) if simpleTags.contains(t) => SimpleTag(t, None, children.map(toAst))
       case TagNode("s", None, children) => SimpleTag("s", Some("del"), children.map(toAst))
       case TagNode("q", None, children) => SimpleTag("q", Some("blockquote"), children.map(toAst))

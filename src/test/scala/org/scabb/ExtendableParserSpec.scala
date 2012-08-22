@@ -40,9 +40,9 @@ class ExtendableParserSpec extends Specification {
 
       import BbParserWithMoreCodeBlocks._
       toHtml("[php]$x = 5;[/php]") must ==/(
-          <pre><code class="php">$x = 5;</code></pre>)
+          <code class="php" style="white-space: pre;">$x = 5;</code>)
       toHtml("[java]int x = 5;[/java]") must ==/(
-          <pre><code class="java">int x = 5;</code></pre>)
+          <code class="java" style="white-space: pre;">int x = 5;</code>)
     }
 
     "be extensible through trait composition" in {

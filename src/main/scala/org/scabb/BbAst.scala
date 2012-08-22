@@ -18,12 +18,16 @@ package org.scabb
 import scala.xml._
 
 abstract class BbAst {
+  /**
+   * Generates xml nodes which correspond to the AST node.
+   */
   def toHtml: NodeSeq
 
   private[scabb] def mkAttr(key: String, value: String) =
     Attribute(key, new Atom(value), Null)
   private[scabb] def mkAttr(key: String, value: String, other: MetaData) =
     Attribute(key, new Atom(value), other)
+
 }
 
 case class SimpleTag(name: String, htmlName: Option[String], contents: List[BbAst]) extends BbAst {
@@ -33,9 +37,11 @@ case class SimpleTag(name: String, htmlName: Option[String], contents: List[BbAs
 
 case class CodeTag(value: Option[String], contents: RawText) extends BbAst {
   override val toHtml = {
-    val classVal = value.map(mkAttr("class", _)).getOrElse(Null)
-    val code = Elem(null, "code", classVal, TopScope, contents.toHtml)
-    Elem(null, "pre", Null, TopScope, code: _*)
+    val multiline = contents.contents.contains('\n')
+    val classAttr = value.map(mkAttr("class", _)).getOrElse(Null)
+    val meta = if (multiline) classAttr else mkAttr("style", "white-space: pre;", classAttr)
+    val code = Elem(null, "code", meta, TopScope, contents.toHtml)
+    if (multiline) Elem(null, "pre", Null, TopScope, code: _*) else code
   }
 }
 
@@ -66,15 +72,28 @@ case class SizeTag(value: String, contents: List[BbAst]) extends BbAst {
   }
 }
 
-case class LinkTag(value: Option[String], inner: FormattedText) extends BbAst {
+case class LinkTag(value: Option[String], inner: List[BbAst]) extends BbAst {
+
+  val mkLinkFromContents: Option[String] = inner match {
+    case FormattedText(contents) :: Nil => Some(contents)
+    case RawText(contents) :: Nil => Some(contents)
+    case _ => None
+  }
+
   override val toHtml = {
-    val href = value.getOrElse(inner.contents)
-    if (href.toLowerCase startsWith "javascript://") {
-      Text("[url" + value.map("=" + _).getOrElse("") + "]") ++ inner.toHtml ++ Text("[/url]")
-    } else {
-      val hrefAttr = mkAttr("href", href)
-      Elem(null, "a", hrefAttr, TopScope, inner.toHtml: _*)
+    val link = value.orElse(mkLinkFromContents)
+    link.map { href =>
+      if (href.toLowerCase startsWith "javascript://") {
+        Text("[url" + value.map("=" + _).getOrElse("") + "]") ++
+          inner.flatMap(_.toHtml) ++ Text("[/url]")
+      } else {
+        val hrefAttr = mkAttr("href", href)
+        Elem(null, "a", hrefAttr, TopScope, inner.flatMap(_.toHtml): _*)
+      }
+    } getOrElse {
+      Text("[url]") ++ inner.flatMap(_.toHtml) ++ Text("[/url]")
     }
+
   }
 }
 
