@@ -42,14 +42,14 @@ features.
 Extensions
 ----------
 
-`BbParser` object is actually an instance of trait `ExtensibleBbParser`
+`BbParser` object is actually an instance of trait `ExtendableBbParser`
 which is highly extensible by it's nature.
 
 For example, you can subclass the trait and specify your own input
 tokenizer (which must be an instance of trait `Tokenizer`) or provide
 some additional tags mappings via scala's partial functions.
 
-For more details please see `ExtensibleParserSpec` class source code which
+For more details please see `ExtendableParserSpec` class source code which
 contains specifications for different ways of parser extensions with
 examples.
 
