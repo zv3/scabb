@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.scabb
+package scabb
 
 import org.specs2.mutable._
 
@@ -61,7 +61,7 @@ class ExtendableParserSpec extends Specification {
       }
 
       object MyBbParser extends ExtendableBbParser with Headers with SupAndSub
-      import MyBbParser._
+import MyBbParser._
 
       toHtml("[h1]E = mc[sup]2[/sup][/h1]") must ==/(
           <h1>E = mc<sup>2</sup></h1>)

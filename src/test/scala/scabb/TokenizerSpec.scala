@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.scabb
+package scabb
 
 import org.specs2.mutable._
 
 class TokenizerSpec extends Specification {
 
-  import Tokenizer._
+import Tokenizer._
 
   "Tokenizer" should {
     "work with simple tag sequence" in {

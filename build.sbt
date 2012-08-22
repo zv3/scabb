@@ -1,3 +1,5 @@
+organization := "org.bbcode"
+
 name := "scabb"
 
 version := "0.1-SNAPSHOT"
