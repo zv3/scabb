@@ -21,24 +21,36 @@ trait BbParser {
   def toHtml(input: String): NodeSeq
 }
 
-object BbParser extends BbParser {
+trait ExtendableBbParser extends BbParser {
 
-  def toHtml(input: String): NodeSeq = {
-    val tokens = Tokenizer.tokenize(input)
-    tokens.map(toAst).flatMap(_.toHtml)
+  type Extension = PartialFunction[BbNode, BbAst]
+
+  object NoExtensions extends Extension {
+    def isDefinedAt(node: BbNode) = false
+    def apply(node: BbNode) = throw new Exception("No AST extensions defined")
   }
+
+  def tokenizer: Tokenizer = Tokenizer
+  def astExtensions: Extension = NoExtensions
 
   def simpleTags = Set("i", "b", "u")
 
-  private def toAst(node: BbNode): BbAst = node match {
-    case TextNode(txt) => FormattedText(txt)
-    case TagNode("code", attr, children) => CodeTag(attr, RawText(children.mkString("")))
-    case TagNode("url", attr, children) => LinkTag(attr, FormattedText(children.mkString("")))
-    case TagNode(t, None, children) if simpleTags.contains(t) => SimpleTag(t, None, children.map(toAst))
-    case TagNode("s", None, children) => SimpleTag("s", Some("del"), children.map(toAst))
-    case TagNode("q", None, children) => SimpleTag("q", Some("blockquote"), children.map(toAst))
-    case TagNode("size", Some(attr), children) => SizeTag(attr, children.map(toAst))
-    case TagNode("color", attr, children) => ColorTag(attr, children.map(toAst))
-    case _ => FormattedText(node.toString)
+  protected def toAst(node: BbNode): BbAst = astExtensions.lift(node) getOrElse {
+    node match {
+      case TextNode(txt) => FormattedText(txt)
+      case TagNode("code", attr, children) => CodeTag(attr, RawText(children.mkString("")))
+      case TagNode("url", attr, children) => LinkTag(attr, FormattedText(children.mkString("")))
+      case TagNode(t, None, children) if simpleTags.contains(t) => SimpleTag(t, None, children.map(toAst))
+      case TagNode("s", None, children) => SimpleTag("s", Some("del"), children.map(toAst))
+      case TagNode("q", None, children) => SimpleTag("q", Some("blockquote"), children.map(toAst))
+      case TagNode("size", Some(attr), children) => SizeTag(attr, children.map(toAst))
+      case TagNode("color", attr, children) => ColorTag(attr, children.map(toAst))
+      case _ => FormattedText(node.toString)
+    }
   }
+
+  def toHtml(input: String) =
+    tokenizer.tokenize(input).map(toAst).flatMap(_.toHtml)
 }
+
+object BbParser extends ExtendableBbParser
