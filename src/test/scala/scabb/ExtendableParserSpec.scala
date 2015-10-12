@@ -16,8 +16,9 @@
 package scabb
 
 import org.specs2.mutable._
+import org.specs2.matcher.XmlMatchers
 
-class ExtendableParserSpec extends Specification {
+class ExtendableParserSpec extends Specification with XmlMatchers {
 
   "Bb parser" should {
 

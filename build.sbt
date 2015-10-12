@@ -14,5 +14,6 @@ resolvers ++= Seq("snapshots" at "http://oss.sonatype.org/content/repositories/s
 libraryDependencies ++= Seq(
   "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.4",
   "org.scala-lang.modules" %% "scala-xml" % "1.0.5",
-  "org.specs2" %% "specs2" % "3.3.1" % "test"
+  "org.specs2"             %% "specs2-core" % "3.6.4" % "test",
+  "org.specs2"             %% "specs2-matcher-extra" % "3.6.4" % "test"   // For XmlMatchers
 )

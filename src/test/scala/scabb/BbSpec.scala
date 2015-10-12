@@ -16,11 +16,12 @@
 package scabb
 
 import org.specs2.mutable._
+import org.specs2.matcher.XmlMatchers
 
 import scabb.BbParser._
 import scala.xml._
 
-class BbSpec extends Specification {
+class BbSpec extends Specification with XmlMatchers {
 
 import BbParser._
 
